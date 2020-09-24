@@ -16,7 +16,7 @@ import torch.backends.cudnn as cudnn
 
 from transforms import transforms
 from utils.train_model import train
-from models.LoadModel import MainModel
+from models.LoadModel_index import MainModel
 from config import LoadConfig, load_data_transformers
 from utils.dataset_DCL_index import collate_fn4train, collate_fn4val, collate_fn4test, collate_fn4backbone, dataset
 
@@ -35,7 +35,7 @@ def parse_args():
     parser.add_argument('--backbone', dest='backbone',
                         default='densenet121', type=str)
     parser.add_argument('--auto_resume', dest='auto_resume',
-                        default = True)       ####action='store_true'.  whether  to continue to train based on trained model
+                        default = False)       ####action='store_true'.  whether  to continue to train based on trained model
     parser.add_argument('--epoch', dest='epoch',
                         default=120, type=int)
     parser.add_argument('--tb', dest='train_batch',
@@ -223,7 +223,7 @@ if __name__ == '__main__':
     exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=args.decay_step, gamma=0.1)   ###gamma multiply lr for each step_size epoch
 
 ###   see the detail of the data  dy modify
-    # for batch_cnt, data in enumerate(dataloader['train']):
+    # for batch_cnt, data in enumerate(dataloader['train']):   ### trainval
         
     #     inputs, labels, labels_swap, swap_law, law_index, img_names = data
         
@@ -232,6 +232,19 @@ if __name__ == '__main__':
         
     #     list_a = data_image.tolist()
     #     list_a_max = max(list_a) 
+        
+    #     law_index = torch.tensor(law_index, dtype=torch.long).cuda()
+    #     index_dy  = law_index.cpu().numpy()
+        
+    #     idx_ = torch.tensor([1],dtype=torch.long).cuda()
+    #     index_swap_per = torch.index_select(law_index,dim = 0, index= idx_)
+        
+    #     index_swap_per = index_swap_per.reshape(-1,)
+    #     index_swap_per_ = index_swap_per.cpu().numpy()
+               
+    #     idx_unswap = torch.tensor([0,2,4,6,8],dtype=torch.long)
+    #     idx_unswap_ = idx_unswap.cpu().numpy()
+        
         
     #     print ('data_detail_%s'%batch_cnt)
 
