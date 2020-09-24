@@ -102,30 +102,31 @@ class MainModel(nn.Module):
         unswap_select = unswap_select.reshape(N,-1)
         x_cat = unswap_select
         
+        
+        # law_index_ = torch.tensor(law_index, dtype=torch.long).cuda()
+        
         for k in range(N):
             idx_ = torch.tensor([k],dtype=torch.long).cuda()
             index_swap_per = torch.index_select(index_swap,dim = 0, index= idx_)
+            index_swap_per_ = index_swap_per.reshape(-1,)
             swap_select_per = torch.index_select(swap_select,dim = 0, index= idx_)
             
-            b = torch.index_select(swap_select_per, 2, index_swap_per)
-            b = b.reshape(N,-1)
+            b = torch.index_select(swap_select_per, 2, index_swap_per_)
+            b = b.reshape(1,-1)
             
             x_cat = torch.cat( (x_cat,b),0 )
             
         idx_cat = torch.tensor([5,6,7,8,9],dtype=torch.long).cuda()
         cat_select = torch.index_select(x_cat,dim = 0, index= idx_cat)
         
-
         x = x_avepool.view(x_avepool.size(0), -1)    ##dy   batchsize x 2048 
-        
         
         x_cat_ = torch.cat([unswap_select,cat_select],1)    ###  batch x  512+512
         
         out = []
         out_cla = self.classifier(x_cat_)
         out_cla_sig = self.cal_sigmoid(out_cla)
-        
-        
+                
         out.append(out_cla_sig)     ###dy   out[0] batchsize x numclass
         # print (self.classifier(x).size())      #####  12
         
@@ -133,6 +134,7 @@ class MainModel(nn.Module):
             out.append(self.classifier_swap(x))    ###dy out[1]  batch x 2     adverisal loss
             out.append(mask)                       ###dy  out[2] batch x 49
 
-                        
+        out.append(unswap_select) 
+        out.append(cat_select)                 
         # out.append(self.classifier_classi(x))     ###dy  out[3] batch x 7   CE loss
         return out
